@@ -4,157 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What does Deepseek know about China?</title>
-    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: beige;
+            font-family: 'Courier', monospace;
+            background-color: #f8f8f8; /* Off-white background */
+            color: #333333; /* Dark gray text */
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         header {
+            width: 100%;
             text-align: center;
-            font-family: 'Abril Fatface', serif;
-            font-size: 2.5rem;
-            padding: 20px;
+            padding: 20px 0;
+            background-color: #333333;
+            color: #f8f8f8;
+            font-size: 24px;
         }
 
-        .container {
+        .content {
             display: flex;
-            justify-content: space-around;
-            margin-top: 50px;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 30px;
         }
 
         .box {
-            width: 45%;
+            width: 300px;
             height: 300px;
-            border: 2px solid #142d4c;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: white;
-            position: relative;
+            border: 2px solid #333333;
+            padding: 20px;
+            background-color: #ffffff;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .box h3 {
+        .topic-header {
+            width: 100%;
             text-align: center;
-            margin: 0;
-            font-size: 1.5rem;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            background-color: #333333;
+            color: #f8f8f8;
         }
 
         .button-container {
             display: flex;
-            justify-content: center;
             flex-wrap: wrap;
-            margin-top: 50px;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         .button-container button {
-            background-color: #142d4c;
-            color: white;
+            background-color: #333333;
+            color: #f8f8f8;
             border: none;
             padding: 10px 20px;
-            margin: 5px;
+            font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-size: 1rem;
+            transition: background-color 0.3s;
         }
 
         .button-container button:hover {
-            background-color: maroon;
+            background-color: #555555;
         }
 
-        .topic-box {
+        iframe {
             width: 100%;
-            height: 100px;
-            background-color: rgba(20, 45, 76, 0.7);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Abril Fatface', serif;
-            font-size: 2rem;
-            margin-top: 30px;
+            height: 300px;
+            border: none;
         }
 
-        .topic-box img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            object-fit: cover;
-            opacity: 0.2;
-        }
-
-        .topic-content {
-            position: relative;
-            z-index: 1;
-        }
     </style>
 </head>
 <body>
+    <header>
+        What does Deepseek know about China?
+    </header>
 
-<header>
-    What does Deepseek know about China?
-</header>
+    <div class="content">
+        <div class="box" id="answerBox">
+            <div class="topic-header" id="topicHeader">Select a topic</div>
+            <div id="answerText">Choose a topic to see the answer.</div>
+        </div>
 
-<div class="topic-box">
-    <div class="topic-content">
-        Current Topic: <span id="current-topic">Click a button</span>
+        <div class="box" id="wikiBox">
+            <iframe id="wikiFrame" src="" title="Wikipedia"></iframe>
+        </div>
     </div>
-    <img id="topic-image" src="assets/your-image.jpg" alt="Topic Background">
-</div>
 
-<div class="container">
-    <div class="box" id="left-box">
-        <h3>Deepseek's Answer</h3>
+    <div class="button-container" id="buttonContainer">
+        <!-- Buttons will be generated dynamically from CSV data -->
     </div>
-    <div class="box" id="right-box">
-        <h3>Wikipedia Link</h3>
-    </div>
-</div>
 
-<div class="button-container" id="button-container">
-    <!-- Buttons will be dynamically inserted here -->
-</div>
-
-<script>
-    // Fetch the CSV file and parse it
-    fetch('https://raw.githubusercontent.com/yourusername/yourrepo/main/content.csv')
-        .then(response => response.text())
-        .then(data => {
-            const rows = data.split('\n').slice(1); // Skip header row
-            const buttonsContainer = document.getElementById('button-container');
-            
-            rows.forEach(row => {
-                const [topic, answer, wikiLink] = row.split(',');
-                
-                // Create button
-                const button = document.createElement('button');
-                button.textContent = topic;
-                button.onclick = () => updateContent(topic, answer, wikiLink);
-                
-                // Append button to container
-                buttonsContainer.appendChild(button);
+    <script>
+        // Function to parse CSV data and return an array of objects
+        function parseCSV(csvText) {
+            const rows = csvText.split('\n').filter(row => row.trim() !== ''); // Remove empty rows
+            const header = rows[0].split(','); // First row as header
+            const data = rows.slice(1).map(row => {
+                const cols = row.split(',');
+                return {
+                    topic: cols[0],
+                    answer: cols[1],
+                    wikiLink: cols[2]
+                };
             });
-        });
+            return data;
+        }
 
-    function updateContent(topic, answer, wikiLink) {
-        // Update the topic
-        document.getElementById('current-topic').textContent = topic;
+        // Fetch CSV file and parse it
+        fetch('https://raw.githubusercontent.com/ashley-yihui-lee/deepseek-censorship/main/content.csv')
+            .then(response => response.text())
+            .then(csvText => {
+                const data = parseCSV(csvText);
 
-        // Update the left box with Deepseek's answer
-        document.getElementById('left-box').innerHTML = `<h3>Deepseek's Answer</h3><p>${answer}</p>`;
+                // Check if the data is parsed correctly
+                console.log('Parsed Data:', data);
 
-        // Update the right box with Wikipedia link
-        document.getElementById('right-box').innerHTML = `<h3>Wikipedia Link</h3><a href="${wikiLink}" target="_blank">${wikiLink}</a>`;
-
-        // Update the background image
-        document.getElementById('topic-image').src = `assets/${topic.replace(/\s+/g, '_')}.jpg`;  // Make sure you name your images accordingly
-    }
-</script>
-
+                const buttonContainer = document.getElementById('buttonContainer');
+                data.forEach(item => {
+                    const button = document.createElement('button');
+                    button.textContent = item.topic;
+                    button.onclick = () => {
+                        document.getElementById('topicHeader').textContent = item.topic;
+                        document.getElementById('answerText').textContent = item.answer;
+                        document.getElementById('wikiFrame').src = item.wikiLink;
+                    };
+                    buttonContainer.appendChild(button);
+                });
+            })
+            .catch(error => console.error('Error loading CSV:', error));
+    </script>
 </body>
 </html>
